@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
 
@@ -11,6 +12,14 @@ createServer((page) =>
         render: ReactDOMServer.renderToString,
         title: (title) => title ? `${title} - ${appName}` : appName,
         resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
-        setup: ({ App, props }) => <App {...props} />,
+        setup: ({ App, props }) => {
+          const queryClient = new QueryClient();
+
+          return (
+            <QueryClientProvider client={queryClient}>
+              <App {...props} />
+            </QueryClientProvider>
+          )
+        },
     }),
 );
